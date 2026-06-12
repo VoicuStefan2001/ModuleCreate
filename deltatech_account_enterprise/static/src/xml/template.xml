@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="template">
+    <t
+        t-name="reconciliation.line.mv_line"
+        t-inherit="account_accountant.reconciliation.line.mv_line"
+        t-inherit-mode="extension"
+    >
+        <xpath expr="//td[hasclass('cell_due_date')]" position="after">
+            <td class="cell_due_date">
+                <t t-esc="line.date" />
+            </td>
+        </xpath>
+    </t>
+</templates>

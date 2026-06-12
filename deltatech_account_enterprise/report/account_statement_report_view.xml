@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+
+    <record id="view_account_statement_report_dashboard" model="ir.ui.view">
+        <field name="name">account.statement.report.dashboard</field>
+        <field name="model">account.statement.report</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <dashboard sample="1">
+                <view type="graph" ref="sale_report.view_account_statement_report_graph" />
+
+                <group>
+                    <group>
+                        <aggregate name="amount_all" string="Amount" field="amount" widget="monetary" />
+                        <aggregate
+                            name="amount_bank"
+                            string="Amount Bank"
+                            domain="[('journal_type', '=', 'bank')]"
+                            field="amount"
+                            widget="monetary"
+                        />
+                        <aggregate
+                            name="amount_cash"
+                            string="Amount Cash"
+                            domain="[('journal_type', '=', 'cash')]"
+                            field="amount"
+                            widget="monetary"
+                        />
+
+
+                    </group>
+                    <group col="1">
+                        <widget
+                            name="pie_chart"
+                            title="Journal"
+                            attrs="{'groupby': 'journal_id', 'measure': 'amount', 'domain': '[(\'journal_type\',\'=\',\'bank\')]'}"
+                        />
+                        <widget
+                            name="pie_chart"
+                            title="Type"
+                            attrs="{'groupby': 'journal_type', 'measure': 'amount'}"
+                        />
+                    </group>
+                </group>
+
+                <view type="pivot" ref="view_account_statement_report_pivot" />
+            </dashboard>
+        </field>
+    </record>
+
+
+    <record id="view_account_statement_report_graph" model="ir.ui.view">
+        <field name="name">account.statement.report.graph</field>
+        <field name="model">account.statement.report</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <graph type="line" sample="1">
+                <field name="date" />
+                <field name="amount" type="measure" />
+            </graph>
+
+        </field>
+    </record>
+
+
+    <record id="view_account_statement_report_pivot" model="ir.ui.view">
+        <field name="name">account.statement.report.pivot</field>
+        <field name="model">account.statement.report</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <pivot sample="1">
+                <field name="journal_type" type="col" />
+                <field name="date" type="row" />
+                <field name="amount" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+
+    <record id="view_account_statement_report_search" model="ir.ui.view">
+        <field name="name">account.statement.report.search</field>
+        <field name="model">account.statement.report</field>
+        <field name="arch" type="xml">
+            <search string="Statements Analysis">
+                <field name="date" />
+                <field name="journal_id" />
+                <filter string="Date" name="year" invisible="1" date="date" default_period="this_year" />
+                <filter name="filter_date" date="date" default_period="this_month" />
+                <separator />
+                <separator />
+                <filter string="Bank" name="bank" domain="[  ('journal_type','=','bank') ]" />
+                <filter string="Cash" name="cash" domain="[  ('journal_type','=','cash') ]" />
+                <separator />
+                <group expand="1" string="Group By">
+                    <filter
+                        string="Journal"
+                        name="journal_id"
+                        context="{'group_by':'journal_id','residual_visible':True}"
+                    />
+                    <filter
+                        string="Partner"
+                        name="partner_id"
+                        context="{'group_by':'partner_id','residual_visible':True}"
+                    />
+                    <filter string="Status" name="status" context="{'group_by':'state'}" />
+                    <filter string="Journal Type" name="journal_type" context="{'group_by':'journal_type'}" />
+
+                    <separator orientation="vertical" />
+                    <filter string="Date" name="date" context="{'group_by':'date'}" />
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_account_statement_report" model="ir.actions.act_window">
+        <field name="name">Statements Analysis</field>
+        <field name="res_model">account.statement.report</field>
+        <field name="view_mode">dashboard,graph,pivot</field>
+        <field name="context">{'search_default_filter_date':1, 'group_by':['date'], 'group_by_no_leaf':1}</field>
+        <field name="search_view_id" ref="view_account_statement_report_search" />
+    </record>
+
+
+    <menuitem
+        id="menu_account_statement_report"
+        name="Statements Analysis"
+        action="action_account_statement_report"
+        sequence="1"
+        parent="account.account_reports_management_menu"
+    />
+
+</odoo>
